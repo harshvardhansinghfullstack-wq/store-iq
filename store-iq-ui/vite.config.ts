@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     proxy: {
       "/api": {
-        target: "https://store-iq-api.onrender.com",
+        target: "https://store-iq.onrender.com",
         changeOrigin: true,
         secure: false,
       },
