@@ -63,17 +63,13 @@ Each scene should have a different background. Use a modern sans-serif font and 
     setVideoS3Key(null);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/ai/generate-video`,
+        "/api/bytez/generate-video",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
             prompt,
-            config: {
-              quality: selectedQuality,
-              voiceSpeed: selectedVoiceSpeed,
-            },
           }),
         }
       );

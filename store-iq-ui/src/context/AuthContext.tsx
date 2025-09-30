@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
+import { toast } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 
 interface User {
@@ -34,7 +35,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const pathname = location.pathname;
-    let normalizedPath = pathname ? pathname.replace(/\/+$/, "").toLowerCase() : "/";
+    let normalizedPath = pathname
+      ? pathname.replace(/\/+$/, "").toLowerCase()
+      : "/";
     if (normalizedPath === "") normalizedPath = "/";
 
     const publicRoutes = ["/", "/login", "/signup", "/about", "/tools"];
@@ -109,6 +112,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     fetchUser();
   }, [location.pathname]);
+// Show toast after successful Google login or signup (with ?logged_in=1 or ?signed_up=1)
+useEffect(() => {
+  if (!loading && user) {
+    const params = new URLSearchParams(location.search);
+    let toastShown = false;
+    if (params.get("logged_in") === "1") {
+      toast("Logged in successfully", { icon: "✅" });
+      params.delete("logged_in");
+      toastShown = true;
+    }
+    if (params.get("signed_up") === "1") {
+      toast("Signed up successfully", { icon: "✅" });
+      params.delete("signed_up");
+      toastShown = true;
+    }
+    if (toastShown) {
+      const newSearch = params.toString();
+      const newUrl =
+        location.pathname + (newSearch ? `?${newSearch}` : "");
+      window.history.replaceState({}, "", newUrl);
+    }
+  }
+  // Only run when user or loading changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user, loading, location.search, location.pathname]);
 
   const login = (_jwt: string, userObj: User) => {
     setToken(_jwt);
@@ -152,7 +180,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateTimezone, loading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout, updateTimezone, loading }}
+    >
       {authError && (
         <div style={{ color: "red", textAlign: "center", margin: "1em" }}>
           {authError}

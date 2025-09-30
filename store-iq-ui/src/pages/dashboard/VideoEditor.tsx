@@ -6,8 +6,19 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { Slider } from "@/components/ui/slider";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/context/AuthContext";
 import Loader from "@/components/ui/Loader";
+import { 
+  Play, 
+  Pause, 
+  Scissors, 
+  Download, 
+  RotateCcw, 
+  RotateCw,
+  Maximize,
+  Settings
+} from "lucide-react";
 
 interface Video {
   id?: string;
@@ -32,7 +43,6 @@ const MOCK_VIDEOS: Video[] = [
 ];
 
 function fetchVideoById(id: string | undefined): Promise<Video | null> {
-  // Mock fetch: Replace with real API if needed
   return new Promise((resolve) => {
     setTimeout(() => {
       const found = MOCK_VIDEOS.find((v) => v.id === id);
@@ -47,12 +57,28 @@ const VideoEditor: React.FC = () => {
   const { user } = useAuth();
   console.log('user', user);
   const userId = user && user.id ? user.id : null;
-  const wildcard = params['*']; // full path after /dashboard/video-editor/
+  const wildcard = params['*'];
   const [video, setVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportDisabled, setExportDisabled] = useState(false);
+
+  // Video control states
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  // Aspect ratio state
+  const [aspectRatio, setAspectRatio] = useState("16:9");
+
+  // Map aspect ratio string to numeric value
+  const aspectRatioMap: Record<string, number> = {
+    "1:1": 1,
+    "4:3": 4 / 3,
+    "16:9": 16 / 9,
+    "3:2": 3 / 2,
+  };
+  const numericAspectRatio = aspectRatioMap[aspectRatio] || 16 / 9;
 
   // Cropping state
   const [start, setStart] = useState(0);
@@ -63,7 +89,6 @@ const VideoEditor: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // If url is passed via navigation state, use it directly
     if (location.state && location.state.url) {
       setVideo({
         url: location.state.url,
@@ -79,7 +104,6 @@ const VideoEditor: React.FC = () => {
 
     setLoading(true);
     setError(null);
-    // If the wildcard is a simple id, use fetchVideoById, else treat as URL
     if (wildcard && !wildcard.includes('/')) {
       fetchVideoById(wildcard)
         .then((v) => {
@@ -95,10 +119,8 @@ const VideoEditor: React.FC = () => {
         .catch(() => setError("Failed to fetch video"))
         .finally(() => setLoading(false));
     } else if (wildcard) {
-      // treat as a path or URL
       let videoUrl = wildcard;
       if (!/^https?:\/\//i.test(videoUrl)) {
-        // If not absolute, ensure it starts with a single /
         videoUrl = videoUrl.startsWith("/") ? videoUrl : "/" + videoUrl;
       }
       setVideo({
@@ -116,44 +138,85 @@ const VideoEditor: React.FC = () => {
     }
   }, [wildcard, location.state]);
 
-  // Set duration from video metadata
+  // Set duration from video metadata and handle time updates
   useEffect(() => {
     const vid = videoRef.current;
     if (!vid) return;
+
     const handleLoadedMetadata = () => {
       setDuration(vid.duration);
-      // If end is 0 or greater than duration, set end to duration
       setEnd((prevEnd) => (prevEnd === 0 || prevEnd > vid.duration ? vid.duration : prevEnd));
     };
-    vid.addEventListener("loadedmetadata", handleLoadedMetadata);
-    return () => {
-      vid.removeEventListener("loadedmetadata", handleLoadedMetadata);
-    };
-  }, [video]);
 
-  // Handle preview of cropped segment
-  useEffect(() => {
-    if (!previewing || !videoRef.current) return;
-    const vid = videoRef.current;
-    vid.currentTime = start;
-    vid.play();
-
-    const onTimeUpdate = () => {
-      if (vid.currentTime >= end) {
+    const handleTimeUpdate = () => {
+      setCurrentTime(vid.currentTime);
+      if (previewing && vid.currentTime >= end) {
         vid.pause();
+        setIsPlaying(false);
         setPreviewing(false);
       }
     };
-    vid.addEventListener("timeupdate", onTimeUpdate);
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    vid.addEventListener("loadedmetadata", handleLoadedMetadata);
+    vid.addEventListener("timeupdate", handleTimeUpdate);
+    vid.addEventListener("play", handlePlay);
+    vid.addEventListener("pause", handlePause);
+
     return () => {
-      vid.removeEventListener("timeupdate", onTimeUpdate);
+      vid.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      vid.removeEventListener("timeupdate", handleTimeUpdate);
+      vid.removeEventListener("play", handlePlay);
+      vid.removeEventListener("pause", handlePause);
     };
-  }, [previewing, start, end]);
+  }, [video, previewing, end]);
+
+  // Video control functions
+  const togglePlay = () => {
+    const vid = videoRef.current;
+    if (!vid) return;
+
+    if (isPlaying) {
+      vid.pause();
+    } else {
+      vid.play();
+    }
+  };
+
+  const seekTo = (time: number) => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    
+    vid.currentTime = Math.max(0, Math.min(time, duration));
+    setCurrentTime(vid.currentTime);
+  };
+
+  const setStartToCurrent = () => {
+    setStart(currentTime);
+    if (currentTime > end) setEnd(currentTime);
+  };
+
+  const setEndToCurrent = () => {
+    setEnd(currentTime);
+    if (currentTime < start) setStart(currentTime);
+  };
+
+  const resetCrop = () => {
+    setStart(0);
+    setEnd(duration);
+  };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-8 text-white">Loading video...</div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+            <p className="text-white text-lg">Loading video...</p>
+          </div>
+        </div>
       </DashboardLayout>
     );
   }
@@ -161,12 +224,15 @@ const VideoEditor: React.FC = () => {
   if (error || !video) {
     return (
       <DashboardLayout>
-        <div className="p-8 text-red-500">{error || "Video not found"}</div>
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <div className="text-red-500 text-lg font-medium">{error || "Video not found"}</div>
+          <Button onClick={() => window.history.back()} variant="outline">
+            Go Back
+          </Button>
+        </div>
       </DashboardLayout>
     );
   }
-
-  // duration is now from state
 
   return (
     <DashboardLayout>
@@ -177,7 +243,7 @@ const VideoEditor: React.FC = () => {
           left: 0,
           width: "100vw",
           height: "100vh",
-          background: "rgba(0,0,0,0.6)",
+          background: "rgba(0,0,0,0.8)",
           zIndex: 2000,
           display: "flex",
           alignItems: "center",
@@ -186,165 +252,372 @@ const VideoEditor: React.FC = () => {
           <Loader message="Exporting video, please wait..." />
         </div>
       )}
-      <div className="p-6 md:p-8 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-4">
-          Video Editor: {video.title || "Untitled"}
-        </h1>
-        <AspectRatio ratio={16 / 9} className="bg-black rounded-lg overflow-hidden mb-6">
-          <video
-            ref={videoRef}
-            src={video.url}
-            controls
-            className="w-full h-full"
-            preload="metadata"
-            style={{ outline: previewing ? "2px solid #a855f7" : undefined }}
-          />
-        </AspectRatio>
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-white">Crop Segment</span>
-            <span className="text-white/60 text-sm">
-              {formatTime(start)} - {formatTime(end)} / {formatTime(duration)}
-            </span>
+      
+      <div className="p-6 md:p-8 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+            Video Editor
+          </h1>
+          <p className="text-white/60">{video.title || "Untitled"}</p>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Video Preview Section */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Aspect Ratio Controls */}
+            <div className="bg-storiq-card-bg rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <label className="text-white font-medium flex items-center gap-2">
+                  <Settings size={16} />
+                  Aspect Ratio
+                </label>
+                <span className="text-white/60 text-sm bg-storiq-border px-2 py-1 rounded">
+                  {aspectRatio}
+                </span>
+              </div>
+              <RadioGroup
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+                value={aspectRatio}
+                onValueChange={setAspectRatio}
+                aria-labelledby="aspect-ratio-label"
+                role="radiogroup"
+              >
+                {[
+                  { value: "1:1", label: "1:1", desc: "Square" },
+                  { value: "4:3", label: "4:3", desc: "Standard" },
+                  { value: "16:9", label: "16:9", desc: "Widescreen" },
+                  { value: "3:2", label: "3:2", desc: "Classic" },
+                ].map(({ value, label, desc }) => (
+                  <div key={value} className="flex flex-col items-center gap-2">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem
+                        value={value}
+                        id={`aspect-${value.replace(':', '-')}`}
+                        className="w-4 h-4"
+                      />
+                      <label 
+                        htmlFor={`aspect-${value.replace(':', '-')}`} 
+                        className="text-white cursor-pointer text-sm"
+                      >
+                        {label}
+                      </label>
+                    </div>
+                    <span className="text-white/40 text-xs">{desc}</span>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+
+            {/* Video Player */}
+            <div className="bg-storiq-card-bg rounded-lg p-4">
+              <AspectRatio
+                ratio={numericAspectRatio}
+                className="bg-black rounded-lg overflow-hidden mb-4 relative group"
+              >
+                <video
+                  ref={videoRef}
+                  src={video.url}
+                  controls
+                  className="w-full h-full"
+                  preload="metadata"
+                  style={{ 
+                    outline: previewing ? "3px solid #a855f7" : undefined,
+                    outlineOffset: previewing ? "-3px" : undefined
+                  }}
+                />
+                {/* Custom Play Button Overlay */}
+                {!isPlaying && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={togglePlay}
+                      className="bg-purple-600/80 hover:bg-purple-600 rounded-full p-4 transition-all transform hover:scale-110"
+                    >
+                      <Play size={32} className="text-white ml-1" />
+                    </button>
+                  </div>
+                )}
+              </AspectRatio>
+
+              {/* Custom Video Controls */}
+              <div className="flex items-center justify-between bg-storiq-border rounded-lg p-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={togglePlay}
+                  className="text-white hover:bg-white/10"
+                >
+                  {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                </Button>
+                
+                <div className="flex-1 mx-4">
+                  <div className="text-white text-xs text-center mb-1">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </div>
+                  <Slider
+                    min={0}
+                    max={duration}
+                    step={0.1}
+                    value={[currentTime]}
+                    onValueChange={([time]) => seekTo(time)}
+                    className="cursor-pointer"
+                  />
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => videoRef.current?.requestFullscreen()}
+                  className="text-white hover:bg-white/10"
+                >
+                  <Maximize size={20} />
+                </Button>
+              </div>
+            </div>
           </div>
-          <Slider
-            min={0}
-            max={duration}
-            step={0.1}
-            value={[start, end]}
-            onValueChange={([newStart, newEnd]) => {
-              // Clamp values to [0, duration]
-              const s = Math.max(0, Math.min(newStart, newEnd, duration));
-              const e = Math.max(0, Math.max(newStart, newEnd, 0));
-              setStart(Math.min(s, e));
-              setEnd(Math.max(s, e));
-            }}
-            minStepsBetweenThumbs={1}
-            className="mb-2"
-          />
-          <div className="flex gap-4">
-            <div>
-              <label className="text-white/70 text-xs">Start</label>
-              <input
-                type="number"
-                min={0}
-                max={end}
-                step={0.1}
-                value={start}
-                onChange={(e) => {
-                  let val = Number(e.target.value);
-                  if (isNaN(val)) val = 0;
-                  val = Math.max(0, Math.min(val, end, duration));
-                  setStart(val);
-                  if (val > end) setEnd(val);
-                }}
-                className="ml-2 w-20 rounded px-2 py-1 bg-storiq-card-bg text-white border border-storiq-border"
-              />
+
+          {/* Editing Controls Sidebar */}
+          <div className="space-y-6">
+            {/* Crop Controls */}
+            <div className="bg-storiq-card-bg rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-medium flex items-center gap-2">
+                  <Scissors size={16} />
+                  Crop Segment
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetCrop}
+                  className="text-white/60 hover:text-white text-xs"
+                >
+                  Reset
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Timeline Slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-white/60 text-sm">
+                    <span className="text-white/60">Start: {formatTime(start)}</span>
+                    <span className="text-white/60">End: {formatTime(end)}</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={duration}
+                    step={0.1}
+                    value={[start, end]}
+                    onValueChange={([newStart, newEnd]) => {
+                      const s = Math.max(0, Math.min(newStart, newEnd, duration));
+                      const e = Math.max(0, Math.max(newStart, newEnd, 0));
+                      setStart(Math.min(s, e));
+                      setEnd(Math.max(s, e));
+                    }}
+                    minStepsBetweenThumbs={1}
+                    className="mb-2"
+                  />
+                </div>
+
+                {/* Quick Set Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={setStartToCurrent}
+                    className="flex-1 text-xs text-white"
+                  >
+                    <RotateCcw size={14} className="mr-1" />
+                    Set Start
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={setEndToCurrent}
+                    className="flex-1 text-xs text-white"
+                  >
+                    <RotateCw size={14} className="mr-1" />
+                    Set End
+                  </Button>
+                </div>
+
+                {/* Numeric Inputs */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-white/70 text-xs block mb-1">Start Time</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={end}
+                      step={0.1}
+                      value={start.toFixed(1)}
+                      onChange={(e) => {
+                        let val = Number(e.target.value);
+                        if (isNaN(val)) val = 0;
+                        val = Math.max(0, Math.min(val, end, duration));
+                        setStart(val);
+                        if (val > end) setEnd(val);
+                      }}
+                      className="w-full rounded px-3 py-2 bg-storiq-border text-white border border-storiq-border focus:border-purple-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-xs block mb-1">End Time</label>
+                    <input
+                      type="number"
+                      min={start}
+                      max={duration}
+                      step={0.1}
+                      value={end.toFixed(1)}
+                      onChange={(e) => {
+                        let val = Number(e.target.value);
+                        if (isNaN(val)) val = start;
+                        val = Math.max(start, Math.min(val, duration));
+                        setEnd(val);
+                        if (val < start) setStart(val);
+                      }}
+                      className="w-full rounded px-3 py-2 bg-storiq-border text-white border border-storiq-border focus:border-purple-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview Button */}
+                <Button
+                  onClick={() => {
+                    setPreviewing(true);
+                    seekTo(start);
+                    togglePlay();
+                  }}
+                  disabled={previewing || start >= end}
+                  variant="outline"
+                  className="w-full text-white"
+                >
+                  <Play size={16} className="mr-2" />
+                  Preview Crop ({formatTime(end - start)})
+                </Button>
+              </div>
             </div>
-            <div>
-              <label className="text-white/70 text-xs">End</label>
-              <input
-                type="number"
-                min={start}
-                max={duration}
-                step={0.1}
-                value={end}
-                onChange={(e) => {
-                  let val = Number(e.target.value);
-                  if (isNaN(val)) val = start;
-                  val = Math.max(start, Math.min(val, duration));
-                  setEnd(val);
-                  if (val < start) setStart(val);
-                }}
-                className="ml-2 w-20 rounded px-2 py-1 bg-storiq-card-bg text-white border border-storiq-border"
-              />
+
+            {/* Export Section */}
+            <div className="bg-storiq-card-bg rounded-lg p-4">
+              <div className="space-y-4">
+                <div className="text-center">
+                  <Download size={24} className="mx-auto mb-2 text-purple-500" />
+                  <h3 className="text-white font-medium">Export Video</h3>
+                  <p className="text-white/60 text-sm">
+                    Crop duration: {formatTime(end - start)}
+                  </p>
+                </div>
+
+                <Button
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  disabled={
+                    start >= end ||
+                    !userId ||
+                    isExporting || 
+                    exportDisabled
+                  }
+                  onClick={async () => {
+                    if (isExporting) return;
+                    setIsExporting(true);
+                    try {
+                      if (
+                        !video?.url ||
+                        typeof start !== "number" ||
+                        typeof end !== "number" ||
+                        start < 0 ||
+                        end <= start ||
+                        isNaN(start) ||
+                        isNaN(end)
+                      ) {
+                        alert("Invalid crop parameters. Please check start/end times and video URL.");
+                        setIsExporting(false);
+                        return;
+                      }
+                      if (!userId) {
+                        alert("User not authenticated. Please log in again.");
+                        setIsExporting(false);
+                        return;
+                      }
+                      const response = await fetch("/api/video/crop", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          videoUrl: video.url,
+                          start: Number(start),
+                          end: Number(end),
+                          userId: userId,
+                          aspectRatio: aspectRatio,
+                        }),
+                        credentials: "include",
+                      });
+                      if (!response.ok) throw new Error("Failed to export video");
+                      const data = await response.json();
+                      const jobId = data.job_id || data.jobId;
+                      const exportEntry = {
+                        filename: video.title || "Untitled",
+                        date: new Date().toISOString(),
+                        crop: { start, end },
+                        url: video.url,
+                        job_id: jobId,
+                        status: data.status,
+                        export_id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        userId: userId
+                      };
+                      const existing = JSON.parse(localStorage.getItem("exports") || "[]");
+                      existing.push(exportEntry);
+                      localStorage.setItem("exports", JSON.stringify(existing));
+                      toast.success("Video added to export queue!", { 
+                        duration: 4000,
+                        icon: '✅'
+                      });
+                      setExportDisabled(true);
+                    } catch (err) {
+                      toast.error("Export failed. Please try again.", {
+                        duration: 4000,
+                        icon: '❌'
+                      });
+                    } finally {
+                      setIsExporting(false);
+                    }
+                  }}
+                >
+                  {isExporting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Exporting...
+                    </>
+                  ) : userId ? (
+                    <>
+                      <Download size={16} className="mr-2" />
+                      Export Video
+                    </>
+                  ) : (
+                    "Sign in to Export"
+                  )}
+                </Button>
+
+                {/* Export Info */}
+                <div className="text-xs text-white/40 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Format:</span>
+                    <span>MP4</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Aspect Ratio:</span>
+                    <span>{aspectRatio}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Quality:</span>
+                    <span>Original</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={() => setPreviewing(true)}
-              disabled={previewing || start >= end}
-              className="ml-4"
-            >
-              Preview Crop
-            </Button>
           </div>
         </div>
-        <Button
-          className="mt-6"
-          disabled={
-            start >= end ||
-            !userId ||
-            isExporting || exportDisabled
-          }
-          onClick={async () => {
-            if (isExporting) return;
-            setIsExporting(true);
-            try {
-              // Ensure all values are present and valid
-              if (
-                !video?.url ||
-                typeof start !== "number" ||
-                typeof end !== "number" ||
-                start < 0 ||
-                end <= start ||
-                isNaN(start) ||
-                isNaN(end)
-              ) {
-                alert("Invalid crop parameters. Please check start/end times and video URL.");
-                setIsExporting(false);
-                return;
-              }
-              if (!userId) {
-                alert("User not authenticated. Please log in again.");
-                setIsExporting(false);
-                return;
-              }
-              // Send POST request to crop API with correct keys
-              const response = await fetch("/api/video/crop", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  videoUrl: video.url,
-                  start: Number(start),
-                  end: Number(end),
-                  userId: userId, // Always include userId for export creation
-                }),
-                credentials: "include",
-              });
-              if (!response.ok) throw new Error("Failed to export video");
-              const data = await response.json();
-              // Prepare export entry with job_id and status
-              const jobId = data.job_id || data.jobId;
-              const exportEntry = {
-                filename: video.title || "Untitled",
-                date: new Date().toISOString(),
-                crop: { start, end },
-                url: video.url,
-                job_id: jobId,
-                status: data.status,
-                export_id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                userId: userId
-              };
-              const existing = JSON.parse(localStorage.getItem("exports") || "[]");
-              existing.push(exportEntry);
-              localStorage.setItem("exports", JSON.stringify(existing));
-              // Show toast instead of changing button state
-              toast.success("added to export job go to export", { duration: 4000 });
-              setExportDisabled(true);
-            } catch (err) {
-              alert("Export failed. Please try again.");
-            } finally {
-              setIsExporting(false);
-            }
-          }}
-        >
-          {isExporting
-            ? "Export in progress"
-            : userId
-              ? "Export"
-              : "Sign in to Export"}
-        </Button>
       </div>
     </DashboardLayout>
   );

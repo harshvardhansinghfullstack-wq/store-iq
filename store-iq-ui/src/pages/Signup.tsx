@@ -167,7 +167,7 @@ const Signup = () => {
               />
               <Input
                 type="text"
-                placeholder="Email / Phone"
+                placeholder="Email Address"
                 className="w-full"
                 value={emailOrPhone}
                 onChange={(e) => setEmailOrPhone(e.target.value)}

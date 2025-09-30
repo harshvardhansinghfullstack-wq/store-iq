@@ -420,7 +420,7 @@ const Videos = () => {
             </div>
             <Button
               onClick={() => navigate("/dashboard/create-video")}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="bg-storiq-purple hover:bg-storiq-purple/80 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Film className="h-5 w-5 mr-2" />
               Create New Video
@@ -660,7 +660,7 @@ const Videos = () => {
             </p>
             <Button
               onClick={() => navigate("/dashboard/create-video")}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200"
+              className="bg-storiq-purple hover:bg-storiq-purple/80 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-200"
             >
               Create Your First Video
             </Button>

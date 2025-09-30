@@ -59,14 +59,6 @@ const AIToolsPage: React.FC = () => {
       link: "/dashboard/aitools/tts",
       icon: MegaphoneIcon, // Assign an icon
     },
-    {
-      title: "Image Editor",
-      subtitle: "Edit images with AI",
-      image: "/src/assets/images/ai-imageeditor-placeholder.png",
-      buttonText: "Try Now",
-      link: "/dashboard/edit-image",
-      icon: PencilLineIcon,
-    },
     // {
     //   title: "Video Podcast Generator",
     //   subtitle: "Generate podcasts from videos",

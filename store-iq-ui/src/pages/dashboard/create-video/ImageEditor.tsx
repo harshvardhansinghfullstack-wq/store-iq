@@ -1,11 +1,18 @@
 // ImageEditor.tsx
 import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 import { authFetch } from "@/lib/authFetch";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Download, RefreshCw, Image as ImageIcon, Wand2, UploadCloud } from "lucide-react";
+import {
+  Download,
+  RefreshCw,
+  Image as ImageIcon,
+  Wand2,
+  UploadCloud,
+} from "lucide-react";
 
 import imageEditorPrompt from "@/assets/images/image-editor-prompt.png";
 
@@ -44,7 +51,7 @@ const ImageEditor: React.FC = () => {
     }
   };
 
-  const handlePromptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
   };
 
@@ -84,10 +91,7 @@ const ImageEditor: React.FC = () => {
 
       const data = await res.json();
       // Accept editedImageUrl, imageUrl, or url from backend
-      const url =
-        data?.editedImageUrl ||
-        data?.imageUrl ||
-        data?.url;
+      const url = data?.editedImageUrl || data?.imageUrl || data?.url;
       if (url) {
         setEditedImageUrl(url);
       } else {
@@ -122,16 +126,21 @@ const ImageEditor: React.FC = () => {
             <span className="align-middle">AI Image Editor</span>
           </h1>
           <p className="text-white/60 text-base md:text-lg text-center">
-            Edit your images with AI-powered magic. Upload an image, optionally a mask, describe your edit, and see the result!
+            Edit your images with AI-powered magic. Upload an image, optionally
+            a mask, describe your edit, and see the result!
           </p>
         </div>
 
         {/* Main image area: loader > error > edited image > prompt placeholder */}
-        {(loading) ? (
+        {loading ? (
           <div className="bg-storiq-card-bg/50 border-storiq-border rounded-2xl shadow-2xl p-6 flex flex-col items-center mx-auto backdrop-blur-sm mb-8">
             <div className="flex flex-col items-center justify-center py-12 space-y-4 animate-fade-in w-full">
               <div className="w-full max-w-md mx-auto flex justify-center">
-                <Loader message="Editing your image..." size="small" overlay={false} />
+                <Loader
+                  message="Editing your image..."
+                  size="small"
+                  overlay={false}
+                />
               </div>
               <p className="text-gray-400 text-sm animate-pulse">
                 This may take a few moments...
@@ -160,7 +169,7 @@ const ImageEditor: React.FC = () => {
               </Button>
             </div>
           </div>
-        ) : (editedImageUrl) ? (
+        ) : editedImageUrl ? (
           <div className="bg-storiq-card-bg/50 border-storiq-border rounded-2xl shadow-2xl p-6 flex flex-col items-center mx-auto backdrop-blur-sm mb-8">
             <div className="space-y-6 animate-fade-in w-full">
               <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
@@ -178,7 +187,9 @@ const ImageEditor: React.FC = () => {
                     src={editedImageUrl}
                     alt="Edited"
                     className={`rounded-lg max-h-64 border border-storiq-purple/70 mb-2 transition-all duration-700 ${
-                      editedImageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                      editedImageLoaded
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-105"
                     }`}
                     onLoad={() => setEditedImageLoaded(true)}
                   />
@@ -215,24 +226,35 @@ const ImageEditor: React.FC = () => {
                 draggable={false}
               />
               <div className="w-full flex flex-col items-center mt-2">
-                <h4 className="text-white/60 text-base font-semibold mb-1">
+                <h4 className="text-white/60 text-sm font-semibold mb-1">
                   Prompt
                 </h4>
-                <pre className="text-white/70 text-base font-medium whitespace-pre-line text-center">
-                     Ultra-realistic split-panel image. Left side: A man standing on a quiet park pathway. Right side: The same man, now with another person standing next to him. In between, add a bold arrow pointing from left to right. Rich natural details, soft shadows, and lifelike textures.
+                <pre className="text-white/70 text-sm font-medium whitespace-pre-line text-center">
+                  Ultra-realistic split-panel image. Left side: A man standing
+                  on a quiet park pathway. Right side: The same man, now with
+                  another person standing next to him. In between, add a bold
+                  arrow pointing from left to right. Rich natural details, soft
+                  shadows, and lifelike textures.
                 </pre>
               </div>
               <p className="text-gray-500 text-sm animate-pulse">
-                ✨ Upload an image, optionally a mask, and enter your prompt to get started
+                ✨ Upload an image, optionally a mask, and enter your prompt to
+                get started
               </p>
             </div>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-storiq-card-bg/50 border-storiq-border rounded-2xl shadow-2xl p-6 mb-8 backdrop-blur-sm">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 bg-storiq-card-bg/50 border-storiq-border rounded-2xl shadow-2xl p-6 mb-8 backdrop-blur-sm"
+        >
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 space-y-4">
-              <label className="text-white font-medium flex items-center gap-2" htmlFor="image-upload">
+              <label
+                className="text-white font-medium flex items-center gap-2"
+                htmlFor="image-upload"
+              >
                 <ImageIcon className="w-4 h-4 text-storiq-purple" />
                 Image (required)
               </label>
@@ -247,13 +269,22 @@ const ImageEditor: React.FC = () => {
               />
               {originalPreview && (
                 <div className="mt-2">
-                  <img src={originalPreview} alt="Original preview" className="rounded-lg max-h-48 border border-gray-700" />
-                  <p className="text-xs text-gray-400 mt-1">Original Image Preview</p>
+                  <img
+                    src={originalPreview}
+                    alt="Original preview"
+                    className="rounded-lg max-h-48 border border-gray-700"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Original Image Preview
+                  </p>
                 </div>
               )}
             </div>
             <div className="flex-1 space-y-4">
-              <label className="text-white font-medium flex items-center gap-2" htmlFor="mask-upload">
+              <label
+                className="text-white font-medium flex items-center gap-2"
+                htmlFor="mask-upload"
+              >
                 <UploadCloud className="w-4 h-4 text-storiq-purple" />
                 Mask (optional)
               </label>
@@ -267,26 +298,32 @@ const ImageEditor: React.FC = () => {
               />
               {maskPreview && (
                 <div className="mt-2">
-                  <img src={maskPreview} alt="Mask preview" className="rounded-lg max-h-48 border border-gray-700" />
+                  <img
+                    src={maskPreview}
+                    alt="Mask preview"
+                    className="rounded-lg max-h-48 border border-gray-700"
+                  />
                   <p className="text-xs text-gray-400 mt-1">Mask Preview</p>
                 </div>
               )}
             </div>
           </div>
           <div>
-            <label className="text-white font-medium flex items-center gap-2" htmlFor="prompt">
+            <label
+              className="text-white font-medium flex items-center gap-2"
+              htmlFor="prompt"
+            >
               <Wand2 className="w-4 h-4 text-storiq-purple" />
               Describe your edit
             </label>
-            <Input
+            <Textarea
               id="prompt"
-              type="text"
               placeholder="e.g. Make the sky sunset orange, add birds..."
               value={prompt}
               onChange={handlePromptChange}
               disabled={loading}
-              className="bg-storiq-card-bg border-storiq-border text-white placeholder:text-white/40 h-12 text-base transition-all duration-200 focus:ring-2 focus:ring-storiq-purple/50 focus:border-storiq-purple"
               required
+              className="bg-storiq-card-bg border-storiq-border text-white placeholder:text-white/40 min-h-[96px] py-3 text-base resize-y transition-all duration-200 focus:ring-2 focus:ring-storiq-purple/50 focus:border-storiq-purple"
             />
           </div>
           <Button
@@ -307,7 +344,6 @@ const ImageEditor: React.FC = () => {
             )}
           </Button>
         </form>
-
       </div>
     </DashboardLayout>
   );

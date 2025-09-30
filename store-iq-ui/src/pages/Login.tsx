@@ -13,11 +13,11 @@ function isEmail(value: string): boolean {
 }
 
 // Helper: Validate fields and return error message or null
-function validateFields(username: string, password: string): string | null {
-  if (!username && !password) return "Please enter username and password.";
-  if (!username) return "Please enter your username.";
+function validateFields(email: string, password: string): string | null {
+  if (!email && !password) return "Please enter email and password.";
+  if (!email) return "Please enter your email.";
   if (!password) return "Please enter your password.";
-  if (isEmail(username) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username)) {
+  if (isEmail(email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return "Please enter a valid email address.";
   }
   return null;
@@ -25,7 +25,7 @@ function validateFields(username: string, password: string): string | null {
 
 const Login = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,17 +37,17 @@ const Login = () => {
     setError(null);
 
     // Validation
-    if (!username) {
-      toast.error("Missing Username: Please enter your username.");
+    if (!email) {
+      toast.error("Missing Email: Please enter your email.");
       return;
     }
     if (!password) {
       toast.error("Missing Password: Please enter your password.");
       return;
     }
-    // If username looks like an email, validate format
-    if (username.includes("@")) {
-      if (!isEmail(username)) {
+    // If email looks like an email, validate format
+    if (email.includes("@")) {
+      if (!isEmail(email)) {
         toast.error("Invalid Email: Please enter a valid email address.");
         return;
       }
@@ -59,7 +59,7 @@ const Login = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: username,
+          email,
           password,
         }),
         credentials: "include",
@@ -81,7 +81,7 @@ const Login = () => {
       } else {
         login(data.token, data.user);
         navigate("/dashboard");
-        toast.success("Logged in successfully");
+        toast.success("Logged in successfully", { icon: "✅" });
       }
     } catch (err) {
       setError("Network error. Please try again.");
@@ -164,10 +164,10 @@ const Login = () => {
               <div>
                 <Input
                   type="text"
-                  placeholder="Username"
+                  placeholder="Email Address"
                   className="w-full"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>

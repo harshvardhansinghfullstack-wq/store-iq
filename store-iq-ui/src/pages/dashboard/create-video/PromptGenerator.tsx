@@ -611,6 +611,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="text-white border-storiq-purple hover:bg-storiq-purple/20"
                                 onClick={() => {
                                   navigator.clipboard.writeText(item.script);
                                   setCopiedCards(prev => {
@@ -626,28 +627,29 @@ Each scene should have a different background. Use a modern sans-serif font and 
                                     return newCards;
                                   });
                                 }}
-                              >
-                                <Copy className="w-4 h-4 mr-2" />
-                                {copiedCards[index] ? "Copied!" : "Copy"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                  setExpandedCards(prev => {
-                                    const newCards = [...prev];
-                                    newCards[index] = !newCards[index];
-                                    return newCards;
-                                  });
-                                }}
-                              >
-                                {expandedCards[index] ? (
-                                  <ChevronUp className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <ChevronDown className="w-4 h-4 mr-2" />
-                                )}
-                                {expandedCards[index] ? "Collapse" : "Expand"}
-                              </Button>
+                                >
+                                  <Copy className="w-4 h-4 mr-2" />
+                                  {copiedCards[index] ? "Copied!" : "Copy"}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-white border-storiq-purple hover:bg-storiq-purple/20"
+                                  onClick={() => {
+                                    setExpandedCards(prev => {
+                                      const newCards = [...prev];
+                                      newCards[index] = !newCards[index];
+                                      return newCards;
+                                    });
+                                  }}
+                                >
+                                  {expandedCards[index] ? (
+                                    <ChevronUp className="w-4 h-4 mr-2" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4 mr-2" />
+                                  )}
+                                  {expandedCards[index] ? "Collapse" : "Expand"}
+                                </Button>
                             </div>
                           </div>
 

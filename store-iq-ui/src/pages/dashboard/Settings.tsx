@@ -16,6 +16,16 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { DateTime, Info } from "luxon";
 import useYouTubeConnect from "@/hooks/useYouTubeConnect";
+import { toast } from "react-hot-toast";
+
+// Password validation utility
+function validatePassword(password: string): boolean {
+  // Min 8 chars, first letter uppercase, at least one special character
+  const minLength = password.length >= 8;
+  const firstUpper = /^[A-Z]/.test(password);
+  const specialChar = /[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\;/]/.test(password);
+  return minLength && firstUpper && specialChar;
+}
 
 // Cookie helpers
 function setCookie(name: string, value: string, days = 365) {
@@ -325,6 +335,23 @@ const Settings = () => {
   const [timezone, setTimezone] = useState(
     user?.timezone || DateTime.local().zoneName
   );
+
+  // Track previous ytConnected value for toast notifications
+  const prevYtConnected = useRef(ytConnected);
+
+  useEffect(() => {
+    if (prevYtConnected.current !== ytConnected) {
+      if (ytConnected) {
+        if (sessionStorage.getItem("ytConnectInitiated")) {
+          toast.success("Successfully connected to YouTube!", { icon: "✅" });
+          sessionStorage.removeItem("ytConnectInitiated");
+        }
+      } else {
+        toast("YouTube disconnected.", { icon: "🔌" });
+      }
+      prevYtConnected.current = ytConnected;
+    }
+  }, [ytConnected]);
   const [updatingTimezone, setUpdatingTimezone] = useState(false);
   const [currentTime, setCurrentTime] = useState(
     DateTime.now().setZone(timezone)
@@ -403,6 +430,8 @@ const Settings = () => {
 
   const handleLogout = () => {
     logout();
+    // Show toast notification on logout
+    toast.success("You have been logged out.");
     navigate("/login");
   };
 
@@ -442,20 +471,37 @@ const Settings = () => {
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Clear any previous error/success state
     setPasswordError("");
     setPasswordSuccess("");
+
+    // Validate required fields
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("All fields are required.");
+      toast.error("All fields are required.");
       return;
     }
-    if (newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters.");
+
+    // Check if old and new password are the same
+    if (currentPassword === newPassword) {
+      toast.error("New password must be different from the current password.");
       return;
     }
+
+    // Validate new password strength using validatePassword
+    if (!validatePassword(newPassword)) {
+      toast.error(
+        "Password must be at least 8 characters, start with an uppercase letter, and include a special character."
+      );
+      return;
+    }
+
+    // Check if new password and confirm password match
     if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
+      toast.error("New passwords do not match.");
       return;
     }
+
     setPasswordLoading(true);
     try {
       const res = await fetch("/api/auth/password", {
@@ -471,15 +517,15 @@ const Settings = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setPasswordError(data.error || "Failed to update password.");
+        toast.error(data.error || "Failed to update password.");
       } else {
-        setPasswordSuccess("Password updated successfully.");
+        toast.success("Password updated successfully.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       }
     } catch (err) {
-      setPasswordError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
     }
     setPasswordLoading(false);
   };
@@ -693,7 +739,10 @@ const Settings = () => {
                     ) : (
                       <Button
                         className="bg-red-600 hover:bg-red-700 text-white font-bold hover:scale-105 transition-transform"
-                        onClick={handleYouTubeOAuth}
+                        onClick={() => {
+                          sessionStorage.setItem("ytConnectInitiated", "1");
+                          handleYouTubeOAuth();
+                        }}
                         disabled={ytLoading}
                       >
                         {ytLoading ? "Connecting..." : "Connect YouTube"}
@@ -894,16 +943,7 @@ const Settings = () => {
                     )}
 
                     {/* Status Messages */}
-                    {passwordError && (
-                      <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
-                        {passwordError}
-                      </div>
-                    )}
-                    {passwordSuccess && (
-                      <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400 text-sm">
-                        {passwordSuccess}
-                      </div>
-                    )}
+                    {/* Inline error/success messages replaced by toast notifications */}
 
                     <Button
                       type="submit"

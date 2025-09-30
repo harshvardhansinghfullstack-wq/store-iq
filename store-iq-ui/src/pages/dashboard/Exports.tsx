@@ -262,7 +262,8 @@ const Exports = () => {
     pollingEntries.forEach((item) => {
       const poll = async () => {
         try {
-          const res = await fetch(`/api/video/crop/${item.jobId}`, {
+          const jobId = item.jobId ?? item.job_id;
+          const res = await fetch(`/api/video/crop/${jobId}`, {
             method: "GET",
             credentials: "include",
           })
@@ -270,14 +271,14 @@ const Exports = () => {
           const data = await res.json()
 
           if (data.status && (data.status.toLowerCase() === "completed" || data.status.toLowerCase() === "failed")) {
-            updateExportEntryByJobId(item.jobId, {
+            updateExportEntryByJobId(jobId, {
               status: data.status.charAt(0).toUpperCase() + data.status.slice(1),
               ...(data.downloadUrl ? { downloadUrl: data.downloadUrl } : {}),
               ...(data.key ? { s3Key: data.key } : {}),
               ...(data.s3Key ? { s3Key: data.s3Key } : {}),
             })
           } else if (data.status && data.progress !== undefined) {
-            updateExportEntryByJobId(item.jobId, {
+            updateExportEntryByJobId(jobId, {
               status: data.status.charAt(0).toUpperCase() + data.status.slice(1),
               progress: data.progress,
             })

@@ -1,4 +1,3 @@
-import { Toaster as LocalToaster } from "@/components/ui/toaster";
 import { Toaster } from "react-hot-toast";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,14 +11,14 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./components/HeroSection";
 import NotFound from "./pages/NotFound";
-
+import GoalBot from "./pages/dashboard/ai-tools/aibot";
 // Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
 import Stats from "./pages/dashboard/Stats";
 import Publish from "./pages/dashboard/Publish";
 import Videos from "./pages/dashboard/Videos";
 import Exports from "./pages/dashboard/Exports";
-import Scripts from "./pages/dashboard/Scripts";
+// import Scripts from "./pages/dashboard/Scripts";
 import Settings from "./pages/dashboard/Settings";
 import VideoGenerator from "./pages/dashboard/create-video/VideoGenerator";
 import ImageGenerator from "./pages/dashboard/create-video/ImageGenerator";
@@ -37,7 +36,6 @@ import TTSPlayer from "./pages/dashboard/ai-tools/Ttscharachter";
 import { AuthProvider } from "./context/AuthContext";
 import { LoaderProvider } from "./context/LoaderContext";
 import ProtectedRoute from "./context/Protected";
-import GoalBot from "./pages/dashboard/ai-tools/aibot";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +43,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <LocalToaster />
       <Sonner />
       <LoaderProvider>
         <BrowserRouter>
@@ -100,14 +97,14 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
+              {/* <Route
                 path="/dashboard/scripts"
                 element={
                   <ProtectedRoute>
                     <Scripts />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
               <Route
                 path="/dashboard/settings"
                 element={
@@ -189,7 +186,7 @@ const App = () => (
                 }
               />
               <Route path="/dashboard/edit-image" element={<ImageEditor />} />
-              <Route path="/dashboard/ai-bot" element={<GoalBot/>} />
+               <Route path="/dashboard/ai-bot" element={<GoalBot/>} />
               <Route
                 path="/dashboard/video-editor/*"
                 element={

@@ -4,6 +4,7 @@ import henryPrompt from "@/assets/images/henry-prompt.webp";
 import bearPrompt from "@/assets/images/bear-prompt.webp";
 import spritePrompt from "@/assets/images/sprite-prompt.webp";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 import { authFetch } from "@/lib/authFetch";
@@ -181,15 +182,14 @@ const ImageGenerator: React.FC = () => {
                     <Wand2 className="w-4 h-4 text-storiq-purple" />
                     Describe your vision
                   </label>
-                  <Input
+                  <Textarea
                     id="prompt"
-                    type="text"
                     placeholder="A beautiful landscape with mountains at sunset..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     disabled={loading}
                     autoFocus
-                    className="bg-black/40 border border-gray-700 text-white placeholder:text-white/40 h-12 text-base rounded-xl focus:ring-2 focus:ring-storiq-purple/50 focus:border-storiq-purple transition"
+                    className="bg-black/40 border border-gray-700 text-white placeholder:text-white/40 min-h-[120px] text-base rounded-xl focus:ring-2 focus:ring-storiq-purple/50 focus:border-storiq-purple transition resize-none px-4 py-3"
                   />
                 </div>
 
