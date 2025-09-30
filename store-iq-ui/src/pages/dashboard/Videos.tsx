@@ -227,7 +227,7 @@ const Videos = () => {
         "s3Key:",
         videoToDelete.s3Key
       );
-      const res = await fetch("/api/delete-video", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/delete-video`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -363,7 +363,7 @@ const Videos = () => {
       if (!imageToDelete || !imageToDelete.s3Key) {
         throw new Error("Image s3Key not found");
       }
-      const res = await fetch("/api/delete-video", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/delete-video`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
