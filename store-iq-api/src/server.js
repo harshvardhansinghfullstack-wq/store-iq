@@ -66,6 +66,14 @@ app.use(
   })
 );
 
+app.use(cookieParser());
+
+res.cookie("token", jwtToken, {
+  httpOnly: true,
+  secure: true,       // must be true on HTTPS
+  sameSite: "None"    // important when frontend and backend are on different domains
+});
+
 app.use(passport.initialize()); // no sessions
 
 // Mount routes
