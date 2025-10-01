@@ -60,19 +60,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "https://your-netlify-domain.netlify.app",
+    origin: process.env.FRONTEND_URL || "https://store-iq-two.vercel.app",
     credentials: true, // must be true to allow cookies
     allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
   })
 );
-
-app.use(cookieParser());
-
-res.cookie("token", jwtToken, {
-  httpOnly: true,
-  secure: true,       // must be true on HTTPS
-  sameSite: "None"    // important when frontend and backend are on different domains
-});
 
 app.use(passport.initialize()); // no sessions
 
