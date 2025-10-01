@@ -26,19 +26,19 @@ const express = require("express");
 const app = express();
 
 // CORS configuration
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-    allowedHeaders: [
-      "Origin",
-      "X-Requested-With",
-      "Content-Type",
-      "Accept",
-      "Authorization",
-    ],
-  })
-);
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND_URL || "http://localhost:5173",
+//     credentials: true,
+//     allowedHeaders: [
+//       "Origin",
+//       "X-Requested-With",
+//       "Content-Type",
+//       "Accept",
+//       "Authorization",
+//     ],
+//   })
+// );
 
 
 // Import all routes
@@ -60,10 +60,12 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL|| "*", // frontend URL, e.g. http://localhost:3000
-    credentials: true, // allow cookies to be sent
+    origin: process.env.FRONTEND_URL || "https://your-netlify-domain.netlify.app",
+    credentials: true, // must be true to allow cookies
+    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
   })
 );
+
 app.use(passport.initialize()); // no sessions
 
 // Mount routes
