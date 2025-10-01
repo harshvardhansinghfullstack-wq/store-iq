@@ -107,13 +107,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         if (storedToken) {
           setToken(storedToken);
-          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+          const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
             headers: { Authorization: `Bearer ${storedToken}` },
             credentials: "include",
           });
           await handleAuthMeResponse(res);
         } else {
-          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+          const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
             credentials: "include",
           });
           await handleAuthMeResponse(res);
@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateTimezone = async (timezone: string) => {
     if (!user) return;
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+      const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       if (!res.ok) throw new Error("Failed to update timezone");
 
-      const userRes = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+      const userRes = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
