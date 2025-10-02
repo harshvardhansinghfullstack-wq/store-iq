@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import creativeContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/creative-content.mp4";
-import aiGeneratedVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/ai-generated.mp4";
-import videoContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/video-content.mp4";
+import creativeContentVideo from "@/assets/videos/creative-content.mp4";
+import aiGeneratedVideo from "@/assets/videos/ai-generated.mp4";
+import videoContentVideo from "@/assets/videos/video-content.mp4";
 // You can also import the sticker if you prefer that method
 // import girlSticker from "/girl-sticker.png";
 
