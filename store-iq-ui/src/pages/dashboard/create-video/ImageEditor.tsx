@@ -77,7 +77,7 @@ const ImageEditor: React.FC = () => {
       if (maskFile) formData.append("mask", maskFile);
       formData.append("prompt", prompt);
 
-      const res = await authFetch("/api/ai/edit-image", {
+      const res = await authFetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/edit-image`, {
         method: "POST",
         body: formData,
       });

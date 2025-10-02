@@ -154,7 +154,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
     setHistoryError(null);
     const userId = user?.id || user?.email;
     try {
-      const res = await fetch(`/api/scripts/history?userId=${encodeURIComponent(userId || "")}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/scripts/history?userId=${encodeURIComponent(userId || "")}`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch history");
@@ -181,7 +181,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
     const enhancedPrompt = `${prompt}\n\nTone: ${scriptTone}\nLength: ${scriptLength}\nInclude: ${includeElements.join(", ")}`;
 
     try {
-      const res = await fetch("/api/generate-script", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/generate-script`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: enhancedPrompt }),
@@ -207,7 +207,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
         setScriptHistory(prev => [newItem, ...prev]);
         
         // Save to backend
-        await fetch("/api/scripts/history", {
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/scripts/history`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -265,7 +265,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
   const handleDeleteHistoryItem = async (_id: string) => {
     setDeleteLoading(_id);
     try {
-      await fetch(`/api/scripts/history/${_id}`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/scripts/history/${_id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -281,7 +281,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
     if (!user) return;
     setClearAllLoading(true);
     try {
-      await fetch(`/api/scripts/history?userId=${encodeURIComponent(user.id || user.email)}`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/scripts/history?userId=${encodeURIComponent(user.id || user.email)}`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -504,7 +504,7 @@ const Settings = () => {
 
     setPasswordLoading(true);
     try {
-      const res = await fetch("/api/auth/password", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/password`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

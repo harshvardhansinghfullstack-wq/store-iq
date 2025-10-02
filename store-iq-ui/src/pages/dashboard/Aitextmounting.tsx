@@ -63,7 +63,7 @@ export default function TextToSpeech() {
   };
 
   const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "https://api.example.com";
+    import.meta.env.VITE_API_BASE_URL ;
 
   const fetchWithAuth = (url: string, options: RequestInit = {}) => {
     const headers = options.headers || {};

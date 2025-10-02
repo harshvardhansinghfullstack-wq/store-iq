@@ -63,7 +63,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
     setVideoS3Key(null);
     try {
       const res = await fetch(
-        "/api/bytez/generate-video",
+        `${import.meta.env.VITE_API_BASE_URL}/api/bytez/generate-video`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -127,7 +127,7 @@ Each scene should have a different background. Use a modern sans-serif font and 
     setDeleteStatus("loading");
     setDeleteError(null);
     try {
-      const res = await fetch("/api/delete-video", {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/delete-video`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ s3Key: videoS3Key }),
