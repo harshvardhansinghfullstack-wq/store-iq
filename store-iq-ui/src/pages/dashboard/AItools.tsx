@@ -22,7 +22,7 @@ const AIToolsPage: React.FC = () => {
     {
       title: "Video Generator",
       subtitle: "Turn text into videos with AI",
-      image: "/src/assets/images/ai-video-placeholder.png",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/images/ai-video-placeholder.png",
       buttonText: "Try Now",
       link: "/dashboard/create-video",
       icon: HeadphonesIcon,
@@ -30,7 +30,7 @@ const AIToolsPage: React.FC = () => {
     {
       title: "Image Generator",
       subtitle: "Create images from your imagination",
-      image: "/src/assets/images/ai-image-placeholder.png",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/images/ai-image-placeholder.png",
       buttonText: "Try Now",
       link: "/dashboard/create-image",
       icon: RocketIcon,
@@ -38,7 +38,7 @@ const AIToolsPage: React.FC = () => {
     {
       title: "Script Generator",
       subtitle: "Generate creative video scripts",
-      image: "/src/assets/images/ai-script-placeholder.png",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/src/assets/images/ai-script-placeholder.png",
       buttonText: "Try Now",
       link: "/dashboard/create-prompt",
       icon: PencilLineIcon,
@@ -89,6 +89,14 @@ const AIToolsPage: React.FC = () => {
       image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/Screenshot+2025-09-29+172349.png",
       buttonText: "Try Now",
       link: "/dashboard/ai-bot",
+      icon: PencilLineIcon,
+    },
+    {
+      title: "Image Editor",
+      subtitle: "Edit images with AI",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/src/assets/images/ai-imageeditor-placeholder.png",
+      buttonText: "Try Now",
+      link: "/dashboard/edit-image",
       icon: PencilLineIcon,
     }
   ];
