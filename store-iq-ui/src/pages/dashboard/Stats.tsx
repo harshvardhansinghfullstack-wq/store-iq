@@ -164,9 +164,22 @@ const Stats = () => {
         const query = params.length ? `?${params.join("&")}` : "";
 
         const [summaryRes, timeseriesRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/stats/summary${query}`),
-          fetch(`${API_BASE_URL}/api/stats/timeseries${query}`),
-        ]);
+        fetch(`${API_BASE_URL}/api/stats/summary${query}`, {
+          method: "GET",
+          credentials: "include", // ✅ send cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }),
+        fetch(`${API_BASE_URL}/api/stats/timeseries${query}`, {
+          method: "GET",
+          credentials: "include", // ✅ send cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }),
+      ]);
+
 
         if (!summaryRes.ok || !timeseriesRes.ok) {
           throw new Error("Failed to fetch stats");
