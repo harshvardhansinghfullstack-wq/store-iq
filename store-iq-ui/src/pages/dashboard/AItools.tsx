@@ -38,7 +38,7 @@ const AIToolsPage: React.FC = () => {
     {
       title: "Script Generator",
       subtitle: "Generate creative video scripts",
-      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/src/assets/images/ai-script-placeholder.png",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/images/ai-script-placeholder.png",
       buttonText: "Try Now",
       link: "/dashboard/create-prompt",
       icon: PencilLineIcon,
@@ -94,7 +94,7 @@ const AIToolsPage: React.FC = () => {
     {
       title: "Image Editor",
       subtitle: "Edit images with AI",
-      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/src/assets/images/ai-imageeditor-placeholder.png",
+      image: "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/images/ai-imageeditor-placeholder.png",
       buttonText: "Try Now",
       link: "/dashboard/edit-image",
       icon: PencilLineIcon,
