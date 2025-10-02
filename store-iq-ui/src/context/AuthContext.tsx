@@ -8,16 +8,16 @@ import React, {
 import { toast } from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 
-// Utility to read cookie
+// ✅ Utility to read cookie
 const getCookie = (name: string) => {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
   return match ? match[2] : null;
 };
 
-// Utility to set cookie
+// ✅ Utility to set cookie (production safe: cross-site + https)
 const setCookie = (name: string, value: string, days = 7) => {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=None; Secure`;
 };
 
 interface User {
@@ -45,15 +45,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // On mount, read token from cookie
+  // ✅ Use Vite env variable correctly
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // ✅ On mount, read token from cookie or localStorage
   useEffect(() => {
     const cookieToken = getCookie("token");
+    const localToken = localStorage.getItem("token");
     if (cookieToken) setToken(cookieToken);
+    else if (localToken) setToken(localToken);
   }, []);
 
   useEffect(() => {
     const pathname = location.pathname;
-    let normalizedPath = pathname ? pathname.replace(/\/+$/, "").toLowerCase() : "/";
+    let normalizedPath = pathname
+      ? pathname.replace(/\/+$/, "").toLowerCase()
+      : "/";
     if (normalizedPath === "") normalizedPath = "/";
 
     const publicRoutes = ["/", "/login", "/signup", "/about", "/tools"];
@@ -64,13 +71,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (isPublic) {
       setUser(null);
-      setToken(getCookie("token"));
+      setToken(getCookie("token") || localStorage.getItem("token"));
       setAuthError(null);
       setLoading(false);
       return;
     }
 
-    const storedToken = getCookie("token");
+    const storedToken = getCookie("token") || localStorage.getItem("token");
 
     const handleAuthMeResponse = async (res: Response) => {
       if (res.ok) {
@@ -82,21 +89,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(null);
           setToken(null);
           setCookie("token", "", -1); // delete cookie
+          localStorage.removeItem("token");
           setAuthError("Authentication failed.");
         }
       } else if (res.status === 404) {
         setUser(null);
         setToken(null);
         setCookie("token", "", -1);
+        localStorage.removeItem("token");
         setAuthError("User not found. Please log in again.");
         window.location.assign("/login");
       } else if (res.status === 401 || res.status === 403) {
         setUser(null);
         setToken(null);
         setCookie("token", "", -1);
+        localStorage.removeItem("token");
         setAuthError("Session expired. Please log in again.");
       } else if (res.status >= 500) {
-        setAuthError("The server is temporarily unavailable. Please try again later.");
+        setAuthError(
+          "The server is temporarily unavailable. Please try again later."
+        );
       } else {
         setAuthError("An unknown error occurred.");
       }
@@ -107,19 +119,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         if (storedToken) {
           setToken(storedToken);
-          const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
+          const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
             headers: { Authorization: `Bearer ${storedToken}` },
             credentials: "include",
           });
           await handleAuthMeResponse(res);
         } else {
-          const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
+          const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
             credentials: "include",
           });
           await handleAuthMeResponse(res);
         }
       } catch {
-        setAuthError("Unable to connect to the server. Please check your connection.");
+        setAuthError(
+          "Unable to connect to the server. Please check your connection."
+        );
         setLoading(false);
       }
     };
@@ -127,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchUser();
   }, [location.pathname]);
 
-  // Show toast after login/signup
+  // ✅ Show toast after login/signup
   useEffect(() => {
     if (!loading && user) {
       const params = new URLSearchParams(location.search);
@@ -154,7 +168,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(_jwt);
     setUser(userObj);
     if (_jwt) {
-      localStorage.setItem("token", _jwt); // optional fallback
+      localStorage.setItem("token", _jwt); // fallback
       setCookie("token", _jwt); // store in cookie
     }
   };
@@ -169,7 +183,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateTimezone = async (timezone: string) => {
     if (!user) return;
     try {
-      const res = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -180,7 +194,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       if (!res.ok) throw new Error("Failed to update timezone");
 
-      const userRes = await fetch(`${process.env.VITE_API_BASE_URL}/api/auth/me`, {
+      const userRes = await fetch(`${API_BASE_URL}/api/auth/me`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
