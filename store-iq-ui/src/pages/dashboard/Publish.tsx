@@ -105,7 +105,7 @@ const Publish = () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch("/api/videos", { credentials: "include" })
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/videos`, { credentials: "include" })
       if (!res.ok) throw new Error("Failed to fetch videos")
       const data = await res.json()
       setVideos(Array.isArray(data) ? data : [])
@@ -125,7 +125,7 @@ const Publish = () => {
       setImagesLoading(true)
       setImagesError(null)
       try {
-        const res = await fetch("/api/images", { credentials: "include" })
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/images`, { credentials: "include" })
         if (!res.ok) throw new Error("Failed to fetch images")
         const data = await res.json()
         setImages(Array.isArray(data) ? data : [])
