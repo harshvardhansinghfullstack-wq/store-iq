@@ -105,7 +105,7 @@ const ImageGenerator: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await authFetch("/api/ai/generate-image", {
+      const res = await authFetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/generate-image`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),

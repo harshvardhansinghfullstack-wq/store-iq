@@ -539,7 +539,7 @@ const VideoEditor: React.FC = () => {
                         setIsExporting(false);
                         return;
                       }
-                      const response = await fetch("/api/video/crop", {
+                      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/video/crop`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",

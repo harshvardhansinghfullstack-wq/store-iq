@@ -41,7 +41,7 @@ const VIDEO_TYPE_OPTIONS = [
   { value: "published", label: "Published" },
   { value: "drafts", label: "Drafts" },
 ];
-
+ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const DATE_RANGE_OPTIONS = [
   { value: "last-1-day", label: "Last 1 day" },
   { value: "last-7-days", label: "Last 7 days" },
@@ -164,8 +164,8 @@ const Stats = () => {
         const query = params.length ? `?${params.join("&")}` : "";
 
         const [summaryRes, timeseriesRes] = await Promise.all([
-          fetch(`/api/stats/summary${query}`),
-          fetch(`/api/stats/timeseries${query}`),
+          fetch(`${API_BASE_URL}/api/stats/summary${query}`),
+          fetch(`${API_BASE_URL}/api/stats/timeseries${query}`),
         ]);
 
         if (!summaryRes.ok || !timeseriesRes.ok) {

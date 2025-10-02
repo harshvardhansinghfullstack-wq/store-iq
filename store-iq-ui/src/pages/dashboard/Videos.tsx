@@ -87,7 +87,7 @@ const Videos = () => {
       setError(null);
       try {
         // Fetch videos
-        const url = "/api/videos";
+        const url = `${import.meta.env.VITE_API_BASE_URL}/api/videos`;
         const fetchOptions: RequestInit = { credentials: "include" };
         const res = await fetch(url, fetchOptions);
         if (res.status === 401) {
@@ -97,7 +97,7 @@ const Videos = () => {
         const data = await res.json();
         setVideos(Array.isArray(data) ? data : []);
         // Fetch images
-        const imgRes = await fetch("/api/images", fetchOptions);
+        const imgRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/images`, fetchOptions);
         if (imgRes.ok) {
           const imgData = await imgRes.json();
           setImages(Array.isArray(imgData) ? imgData : []);

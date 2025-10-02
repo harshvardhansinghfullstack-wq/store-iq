@@ -170,7 +170,7 @@ const Exports = () => {
     }
 
     try {
-      await fetch("/api/delete-video", {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/delete-video`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ s3Key }),
@@ -263,7 +263,7 @@ const Exports = () => {
       const poll = async () => {
         try {
           const jobId = item.jobId ?? item.job_id;
-          const res = await fetch(`/api/video/crop/${jobId}`, {
+          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/video/crop/${jobId}`, {
             method: "GET",
             credentials: "include",
           })
