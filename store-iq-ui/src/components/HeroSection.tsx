@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import creativeContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/creative-content.mp4";
-import aiGeneratedVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/ai-generated.mp4";
-import videoContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/video-content.mp4";
-// You can also import the sticker if you prefer that method
-// import girlSticker from "/girl-sticker.png";
+// import creativeContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/creative-content.mp4";
+// import aiGeneratedVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/ai-generated.mp4";
+// import videoContentVideo from "https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/video-content.mp4";
+
 
 const VideoCard = ({ src }) => {
   return (
@@ -47,9 +46,9 @@ const HeroSection = () => {
 
       {/* Hero Videos Grid */}
       <div className="grid grid-cols-3 gap-2 mb-12 max-w-4xl w-full">
-        <VideoCard src={creativeContentVideo} />
-        <VideoCard src={aiGeneratedVideo} />
-        <VideoCard src={videoContentVideo} />
+        <VideoCard src="https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/creative-content.mp4" />
+        <VideoCard src="https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/ai-generated.mp4" />
+        <VideoCard src="https://store-iq-bucket.s3.ap-south-1.amazonaws.com/dashboard-images-static/videos/video-content.mp4" />
       </div>
 
       {/* Main Heading */}
